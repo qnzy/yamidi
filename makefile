@@ -11,4 +11,5 @@ clean:
 
 lint:
 	clang-tidy -checks="*,-llvm-header-guard" -header-filter=".*" test.c
+	cppcheck --enable=all --inconclusive test.c
 .PHONY: lint
