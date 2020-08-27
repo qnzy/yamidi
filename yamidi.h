@@ -102,7 +102,7 @@ struct midiBytes_s genMidiMessage(struct midiMsg_s msg) {
     return ret;
 }
 
-bool parseMidiByte(uint8_t b, struct midiMsg_s *msg, int *state) {
+bool parseMidiByte(uint8_t b __attribute__((unused)), struct midiMsg_s *msg __attribute__((unused)), int *state __attribute__((unused))) {
     return false;
 }
 #endif // #ifdef YAMIDI_IMPLEMENTATION
