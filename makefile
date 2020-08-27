@@ -7,6 +7,7 @@ $(TESTEXE): test.c yamidi.h
 
 clean:
 	rm -rf *.o $(TESTEXE)
+.PHONY: clean
 
 lint:
 	clang-tidy -checks="*,-llvm-header-guard" -header-filter=".*" test.c
