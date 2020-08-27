@@ -13,5 +13,13 @@ int main() {
         printf ("%02x ",raw.data[i]);
     }
     printf("\n");
+
+   int state = 0;
+   struct midiMsg_s msg;
+    if (parseMidiByte(0x85, &msg, &state)) {printf("error on line %d\n", __LINE__);}
+    if (parseMidiByte(0x01, &msg, &state)) {printf("error on line %d\n", __LINE__);}
+    if (!parseMidiByte(0x02, &msg, &state)) {printf("error on line %d\n", __LINE__);}
+    printf("msg.status = %x\n",msg.status);
+
     return 0;
 }

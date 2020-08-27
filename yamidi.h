@@ -27,6 +27,7 @@ struct midiParamCC_s            { uint8_t chan; uint8_t ctrl; uint8_t val; };
 struct midiParamProgramChange_s { uint8_t chan; uint8_t prog;              };
 struct midiParamChannelAT_s     { uint8_t chan; uint8_t vel;               };
 struct midiParamPitchBend_s     { uint8_t chan; uint16_t val;              };
+struct midiParamGeneric_s       { uint8_t data[3];                         };
 
 struct midiMsg_s {
     int status;
@@ -38,6 +39,7 @@ struct midiMsg_s {
         struct midiParamProgramChange_s midiParamProgramChange;
         struct midiParamChannelAT_s midiParamChannelAT;
         struct midiParamPitchBend_s midiParamPitchBend;
+        struct midiParamGeneric_s midiParamGeneric;
     } params;
 };
 
@@ -102,7 +104,64 @@ struct midiBytes_s genMidiMessage(struct midiMsg_s msg) {
     return ret;
 }
 
-bool parseMidiByte(uint8_t b __attribute__((unused)), struct midiMsg_s *msg __attribute__((unused)), int *state __attribute__((unused))) {
+bool parseMidiByte(uint8_t b, struct midiMsg_s *msg, int *state) {
+   if (b & 0x80u) { // new midi status
+        if ( ((b & 0x80u) >= 0x80) && ((b & 0x80u) <= 0xe0) ) {
+            msg->status = b & 0xf0u;
+            msg->params.midiParamGeneric.data[0] = b & 0x0fu;
+            *state = 1;
+        } else { // ignored midi messages
+            *state = 0;
+        }
+    } else {      // data byte
+       switch (*state) {
+           case 0: // no valid status
+               *state = 0;
+               break;
+           case 1: // first data byte
+               switch (msg->status) {
+                    case midiStatusNoteOff:
+                    case midiStatusNoteOn:
+                    case midiStatusPolyAT:
+                    case midiStatusCC:
+                    case midiStatusPitchBend:
+                        msg->params.midiParamGeneric.data[1]=b;
+                        *state = 2;
+                        break;
+                    case midiStatusProgramChange:
+                    case midiStatusChannelAT:
+                        msg->params.midiParamGeneric.data[1]=b;
+                        *state = 0;
+                        return true;
+                    default:
+                        *state = 0;
+               }
+               break;
+           case 2: // second data byte
+               switch (msg->status) {
+                    case midiStatusNoteOff:
+                    case midiStatusNoteOn:
+                    case midiStatusPolyAT:
+                    case midiStatusCC:
+                        msg->params.midiParamGeneric.data[2] = b;
+                        *state = 0;
+                        return true;
+                    case midiStatusProgramChange:
+                    case midiStatusChannelAT:
+                        *state = 0;
+                        break;
+                    case midiStatusPitchBend:
+                        msg->params.midiParamPitchBend.val = msg->params.midiParamGeneric.data[1] + (b<<7u);
+                        *state = 0;
+                        return true;
+                    default:
+                        *state = 0;
+               }
+               break;
+           default: // error
+               *state = 0;
+        }
+    }
     return false;
 }
 #endif // #ifdef YAMIDI_IMPLEMENTATION
