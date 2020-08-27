@@ -1,9 +1,13 @@
 CC ?= gcc
-CFLAGS += -Wall -Wextra -Wpedantic # -Werror
+CFLAGS += -Wall -Wextra -Wpedantic -Werror
 TESTEXE = test
 
-test: test.c yamidi.h
+$(TESTEXE): test.c yamidi.h
 	$(CC) $(CFLAGS) test.c -o $(TESTEXE)
 
 clean:
 	rm -rf *.o $(TESTEXE)
+
+lint:
+	clang-tidy -checks="*,-llvm-header-guard" -header-filter=".*" test.c
+.PHONY: lint
