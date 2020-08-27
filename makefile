@@ -1,5 +1,5 @@
 CC ?= gcc
-CFLAGS += -Wall -Wextra -Wpedantic -Werror
+CFLAGS += -Wall -Wextra -Wpedantic -Werror -std=c99
 TESTEXE = test
 
 $(TESTEXE): test.c yamidi.h
