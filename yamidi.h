@@ -106,7 +106,7 @@ struct midiBytes_s genMidiMessage(struct midiMsg_s msg) {
 
 bool parseMidiByte(uint8_t b, struct midiMsg_s *msg, int *state) {
    if (b & 0x80u) { // new midi status
-        if ( ((b & 0x80u) >= 0x80) && ((b & 0x80u) <= 0xe0) ) {
+        if ( ((b & 0xf0u) >= 0x80) && ((b & 0xf0u) <= 0xe0) ) {
             msg->status = b & 0xf0u;
             msg->params.midiParamGeneric.data[0] = b & 0x0fu;
             *state = 1;
