@@ -1,6 +1,10 @@
 CC ?= gcc
 CFLAGS += -Wall -Wextra -Wpedantic -Werror -std=c99
-TESTEXE = test
+TESTEXE = testexe
+
+test: $(TESTEXE)
+	./$(TESTEXE)
+.PHONY: test
 
 $(TESTEXE): test.c yamidi.h
 	$(CC) $(CFLAGS) test.c -o $(TESTEXE)
