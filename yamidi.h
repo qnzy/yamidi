@@ -30,7 +30,7 @@ struct midiParamPitchBend_s     { uint8_t chan; uint16_t val;              };
 struct midiParamGeneric_s       { uint8_t data[3];                         };
 
 struct midiMsg_s {
-    int status;
+    uint8_t status;
     union {
         struct midiParamNoteOn_s midiParamNoteOn;
         struct midiParamNoteOff_s midiParamNoteOff;
